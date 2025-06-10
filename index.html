@@ -34,19 +34,19 @@ scene("menu", () => {
   add([
     text("Sal Off the Boat:\nFESTA FRENZY", { size: 24, align: "center" }),
     pos(center().x, 80),
-    origin("top")
+    anchor("center")
   ]);
 
   add([
     text("[1] Start Festa Frenzy", { size: 16 }),
     pos(center().x, 160),
-    origin("top")
+    anchor("center")
   ]);
 
   add([
     text("[2] Start Vespa Dash", { size: 16 }),
     pos(center().x, 190),
-    origin("top")
+    anchor("center")
   ]);
 
   onKeyPress("1", () => go("main"));
@@ -152,7 +152,7 @@ scene("lose", () => {
   add([
     text("GAME OVER\nScore: " + score, { size: 24 }),
     pos(center()),
-    origin("center")
+    anchor("center")
   ]);
 });
 
