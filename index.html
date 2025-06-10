@@ -16,197 +16,45 @@ kaboom({
   scale: 2,
 });
 
-// Load sprites and sounds from reliable sources
-loadSprite("sal", "https://kaboomjs.com/sprites/bean.png");
-loadSprite("espresso", "https://kaboomjs.com/sprites/coin.png");
-loadSprite("flag", "https://kaboomjs.com/sprites/apple.png");
-loadSprite("pigeon", "https://kaboomjs.com/sprites/ghosty.png");
-loadSprite("nonna", "https://kaboomjs.com/sprites/heart.png");
+// Load custom sprites from sprite sheet
+loadSprite("sal", "/mnt/data/A_pixel_art_sprite_sheet_features_five_8-bit_style.png", {
+  sliceX: 5,
+  sliceY: 1,
+  width: 64,
+  height: 64,
+});
+loadSprite("espresso", "/mnt/data/A_pixel_art_sprite_sheet_features_five_8-bit_style.png", {
+  sliceX: 5,
+  sliceY: 1,
+  width: 64,
+  height: 64,
+  frame: 0,
+});
+loadSprite("flag", "/mnt/data/A_pixel_art_sprite_sheet_features_five_8-bit_style.png", {
+  sliceX: 5,
+  sliceY: 1,
+  width: 64,
+  height: 64,
+  frame: 1,
+});
+loadSprite("nonna", "/mnt/data/A_pixel_art_sprite_sheet_features_five_8-bit_style.png", {
+  sliceX: 5,
+  sliceY: 1,
+  width: 64,
+  height: 64,
+  frame: 2,
+});
+loadSprite("pigeon", "/mnt/data/A_pixel_art_sprite_sheet_features_five_8-bit_style.png", {
+  sliceX: 5,
+  sliceY: 1,
+  width: 64,
+  height: 64,
+  frame: 3,
+});
 loadSound("collect", "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
 loadSound("hit", "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
 loadSound("nonna", "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
 loadSound("bgm", "https://files.catbox.moe/2h6hkl.mp3");
-
-// START MENU
-scene("menu", () => {
-  add([
-    text("Sal Off the Boat:\nFESTA FRENZY", { size: 24, align: "center" }),
-    pos(center().x, 80),
-    anchor("center")
-  ]);
-
-  add([
-    text("[1] Start Festa Frenzy", { size: 16 }),
-    pos(center().x, 160),
-    anchor("center")
-  ]);
-
-  add([
-    text("[2] Start Vespa Dash", { size: 16 }),
-    pos(center().x, 190),
-    anchor("center")
-  ]);
-
-  onKeyPress("1", () => go("main"));
-  onKeyPress("2", () => go("level2"));
-});
-
-// Game scene - Festa Frenzy
-scene("main", () => {
-  const SPEED = 120;
-  let lives = 3;
-  let score = 0;
-  let invincible = false;
-
-  play("bgm", { loop: true });
-
-  const player = add([
-    sprite("sal"),
-    pos(80, 100),
-    area(),
-    body(),
-    "player"
-  ]);
-
-  onKeyDown("left", () => player.move(-SPEED, 0));
-  onKeyDown("right", () => player.move(SPEED, 0));
-  onKeyDown("up", () => player.move(0, -SPEED));
-  onKeyDown("down", () => player.move(0, SPEED));
-
-  const scoreLabel = add([
-    text("Score: 0", { size: 12 }),
-    pos(10, 10),
-    { value: 0 }
-  ]);
-
-  const livesLabel = add([
-    text("Lives: 3", { size: 12 }),
-    pos(10, 30),
-    { value: 3 }
-  ]);
-
-  function spawnItem(name, spriteName, points) {
-    const item = add([
-      sprite(spriteName),
-      pos(rand(50, width() - 50), rand(50, height() - 50)),
-      area(),
-      name
-    ]);
-    player.onCollide(name, () => {
-      destroy(item);
-      play("collect");
-      score += points;
-      scoreLabel.text = "Score: " + score;
-    });
-  }
-
-  function spawnEnemy() {
-    const pigeon = add([
-      sprite("pigeon"),
-      pos(rand(0, width()), rand(0, height())),
-      area(),
-      move(LEFT, 100),
-      offscreen({ destroy: true }),
-      "enemy"
-    ]);
-    player.onCollide("enemy", () => {
-      if (!invincible) {
-        play("hit");
-        lives--;
-        livesLabel.text = "Lives: " + lives;
-        if (lives <= 0) {
-          go("lose", { finalScore: score });
-        }
-      }
-    });
-  }
-
-  function spawnNonna() {
-    const nonna = add([
-      sprite("nonna"),
-      pos(rand(0, width()), rand(0, height())),
-      area(),
-      "nonna"
-    ]);
-    player.onCollide("nonna", () => {
-      destroy(nonna);
-      play("nonna");
-      invincible = true;
-      wait(5, () => invincible = false);
-      score += 50;
-      scoreLabel.text = "Score: " + score;
-    });
-  }
-
-  loop(2, () => spawnItem("espresso", "espresso", 10));
-  loop(5, () => spawnItem("flag", "flag", 20));
-  loop(4, () => spawnEnemy());
-  loop(10, () => spawnNonna());
-});
-
-// Game Over scene
-scene("lose", ({ finalScore }) => {
-  add([
-    text("GAME OVER\nScore: " + finalScore, { size: 24 }),
-    pos(center()),
-    anchor("center")
-  ]);
-});
-
-// Level 2 - Vespa Dash
-scene("level2", () => {
-  const SPEED = 200;
-  let vespaScore = 0;
-
-  const salVespa = add([
-    rect(16, 16),
-    pos(80, height() / 2),
-    color(255, 255, 0),
-    area(),
-    "vespa"
-  ]);
-
-  onKeyDown("up", () => salVespa.move(0, -SPEED));
-  onKeyDown("down", () => salVespa.move(0, SPEED));
-
-  const vespaScoreLabel = add([
-    text("Score: 0", { size: 12 }),
-    pos(10, 10)
-  ]);
-
-  function spawnObstacle() {
-    const obs = add([
-      rect(16, 16),
-      pos(width(), rand(0, height() - 16)),
-      color(255, 0, 0),
-      area(),
-      move(LEFT, SPEED),
-      offscreen({ destroy: true }),
-      "obstacle"
-    ]);
-    salVespa.onCollide("obstacle", () => go("lose", { finalScore: vespaScore }));
-  }
-
-  function spawnPickup() {
-    const pickup = add([
-      rect(12, 12),
-      pos(width(), rand(0, height() - 12)),
-      color(0, 255, 0),
-      area(),
-      move(LEFT, SPEED),
-      offscreen({ destroy: true }),
-      "pickup"
-    ]);
-    salVespa.onCollide("pickup", () => {
-      destroy(pickup);
-      vespaScore += 10;
-      vespaScoreLabel.text = "Score: " + vespaScore;
-    });
-  }
-
-  loop(1.5, () => spawnObstacle());
-  loop(2, () => spawnPickup());
-});
 
 // Start menu
 go("menu");
