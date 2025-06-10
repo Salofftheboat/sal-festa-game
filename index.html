@@ -16,12 +16,12 @@ kaboom({
   scale: 2,
 });
 
-// Load sprites and sounds
-loadSprite("sal", "https://i.imgur.com/jNNT4LE.png");
-loadSprite("espresso", "https://i.imgur.com/zSovh3j.png");
-loadSprite("flag", "https://i.imgur.com/BfTSq3F.png");
-loadSprite("pigeon", "https://i.imgur.com/Y7WxQ2t.png");
-loadSprite("nonna", "https://i.imgur.com/0fyTQh3.png");
+// Load sprites and sounds from reliable sources
+loadSprite("sal", "https://kaboomjs.com/sprites/bean.png");
+loadSprite("espresso", "https://kaboomjs.com/sprites/coin.png");
+loadSprite("flag", "https://kaboomjs.com/sprites/apple.png");
+loadSprite("pigeon", "https://kaboomjs.com/sprites/ghosty.png");
+loadSprite("nonna", "https://kaboomjs.com/sprites/heart.png");
 loadSound("collect", "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
 loadSound("hit", "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
 loadSound("nonna", "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
@@ -76,14 +76,12 @@ scene("main", () => {
   const scoreLabel = add([
     text("Score: 0", { size: 12 }),
     pos(10, 10),
-    
     { value: 0 }
   ]);
 
   const livesLabel = add([
     text("Lives: 3", { size: 12 }),
     pos(10, 30),
-    
     { value: 3 }
   ]);
 
@@ -173,8 +171,7 @@ scene("level2", () => {
 
   const vespaScoreLabel = add([
     text("Score: 0", { size: 12 }),
-    pos(10, 10),
-    layer("ui")
+    pos(10, 10)
   ]);
 
   function spawnObstacle() {
