@@ -17,17 +17,15 @@ kaboom({
 });
 
 // Load sprites and sounds
-loadSprite("sal", "https://i.imgur.com/jNNT4LE.png"); // 8-bit Sal
-loadSprite("espresso", "https://i.imgur.com/zSovh3j.png"); // 8-bit Espresso
-loadSprite("flag", "https://i.imgur.com/BfTSq3F.png"); // Italian Flag
-loadSprite("pigeon", "https://i.imgur.com/Y7WxQ2t.png"); // Enemy - Pigeon
-loadSprite("nonna", "https://i.imgur.com/0fyTQh3.png"); // Nonna Power-up
+loadSprite("sal", "https://i.imgur.com/jNNT4LE.png");
+loadSprite("espresso", "https://i.imgur.com/zSovh3j.png");
+loadSprite("flag", "https://i.imgur.com/BfTSq3F.png");
+loadSprite("pigeon", "https://i.imgur.com/Y7WxQ2t.png");
+loadSprite("nonna", "https://i.imgur.com/0fyTQh3.png");
 loadSound("collect", "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
 loadSound("hit", "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
 loadSound("nonna", "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
-loadSound("bgm", "https://files.catbox.moe/2h6hkl.mp3"); // 8-bit Tarantella remix
-
-let score = 0;
+loadSound("bgm", "https://files.catbox.moe/2h6hkl.mp3");
 
 // START MENU
 scene("menu", () => {
@@ -57,6 +55,7 @@ scene("menu", () => {
 scene("main", () => {
   const SPEED = 120;
   let lives = 3;
+  let score = 0;
   let invincible = false;
 
   play("bgm", { loop: true });
@@ -77,14 +76,14 @@ scene("main", () => {
   const scoreLabel = add([
     text("Score: 0", { size: 12 }),
     pos(10, 10),
-    layer("ui"),
+    
     { value: 0 }
   ]);
 
   const livesLabel = add([
     text("Lives: 3", { size: 12 }),
     pos(10, 30),
-    layer("ui"),
+    
     { value: 3 }
   ]);
 
@@ -118,7 +117,7 @@ scene("main", () => {
         lives--;
         livesLabel.text = "Lives: " + lives;
         if (lives <= 0) {
-          go("lose");
+          go("lose", { finalScore: score });
         }
       }
     });
@@ -148,9 +147,9 @@ scene("main", () => {
 });
 
 // Game Over scene
-scene("lose", () => {
+scene("lose", ({ finalScore }) => {
   add([
-    text("GAME OVER\nScore: " + score, { size: 24 }),
+    text("GAME OVER\nScore: " + finalScore, { size: 24 }),
     pos(center()),
     anchor("center")
   ]);
@@ -188,7 +187,7 @@ scene("level2", () => {
       offscreen({ destroy: true }),
       "obstacle"
     ]);
-    salVespa.onCollide("obstacle", () => go("lose"));
+    salVespa.onCollide("obstacle", () => go("lose", { finalScore: vespaScore }));
   }
 
   function spawnPickup() {
@@ -212,7 +211,7 @@ scene("level2", () => {
   loop(2, () => spawnPickup());
 });
 
-// Start the menu
+// Start menu
 go("menu");
 </script>
 </body>
