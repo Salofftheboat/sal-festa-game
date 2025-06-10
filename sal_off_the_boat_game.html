@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Sal Off the Boat: Festa Frenzy</title>
+  <script src="https://unpkg.com/kaboom/dist/kaboom.js"></script>
+  <style>
+    body { margin: 0; background: black; }
+    canvas { display: block; margin: auto; }
+  </style>
+</head>
+<body>
+<script>
+// Initialize Kaboom
+kaboom({
+  background: [0, 0, 0],
+  scale: 2,
+});
+
+// Load sprites and sounds
+loadSprite("sal", "https://i.imgur.com/jNNT4LE.png"); // 8-bit Sal
+loadSprite("espresso", "https://i.imgur.com/zSovh3j.png"); // 8-bit Espresso
+loadSprite("flag", "https://i.imgur.com/BfTSq3F.png"); // Italian Flag
+loadSprite("pigeon", "https://i.imgur.com/Y7WxQ2t.png"); // Enemy - Pigeon
+loadSprite("nonna", "https://i.imgur.com/0fyTQh3.png"); // Nonna Power-up
+loadSound("collect", "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
+loadSound("hit", "https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+loadSound("nonna", "https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
+loadSound("bgm", "https://files.catbox.moe/2h6hkl.mp3"); // 8-bit Tarantella remix
+
+let score = 0;
+
+// START MENU
+scene("menu", () => {
+  add([
+    text("Sal Off the Boat:\nFESTA FRENZY", { size: 24, align: "center" }),
+    pos(center().x, 80),
+    origin("top")
+  ]);
+
+  add([
+    text("[1] Start Festa Frenzy", { size: 16 }),
+    pos(center().x, 160),
+    origin("top")
+  ]);
+
+  add([
+    text("[2] Start Vespa Dash", { size: 16 }),
+    pos(center().x, 190),
+    origin("top")
+  ]);
+
+  onKeyPress("1", () => go("main"));
+  onKeyPress("2", () => go("level2"));
+});
+
+// Game scene - Festa Frenzy
+scene("main", () => {
+  const SPEED = 120;
+  let lives = 3;
+  let invincible = false;
+
+  play("bgm", { loop: true });
+
+  const player = add([
+    sprite("sal"),
+    pos(80, 100),
+    area(),
+    body(),
+    "player"
+  ]);
+
+  onKeyDown("left", () => player.move(-SPEED, 0));
+  onKeyDown("right", () => player.move(SPEED, 0));
+  onKeyDown("up", () => player.move(0, -SPEED));
+  onKeyDown("down", () => player.move(0, SPEED));
+
+  const scoreLabel = add([
+    text("Score: 0", { size: 12 }),
+    pos(10, 10),
+    layer("ui"),
+    { value: 0 }
+  ]);
+
+  const livesLabel = add([
+    text("Lives: 3", { size: 12 }),
+    pos(10, 30),
+    layer("ui"),
+    { value: 3 }
+  ]);
+
+  function spawnItem(name, spriteName, points) {
+    const item = add([
+      sprite(spriteName),
+      pos(rand(50, width() - 50), rand(50, height() - 50)),
+      area(),
+      name
+    ]);
+    player.onCollide(name, () => {
+      destroy(item);
+      play("collect");
+      score += points;
+      scoreLabel.text = "Score: " + score;
+    });
+  }
+
+  function spawnEnemy() {
+    const pigeon = add([
+      sprite("pigeon"),
+      pos(rand(0, width()), rand(0, height())),
+      area(),
+      move(LEFT, 100),
+      offscreen({ destroy: true }),
+      "enemy"
+    ]);
+    player.onCollide("enemy", () => {
+      if (!invincible) {
+        play("hit");
+        lives--;
+        livesLabel.text = "Lives: " + lives;
+        if (lives <= 0) {
+          go("lose");
+        }
+      }
+    });
+  }
+
+  function spawnNonna() {
+    const nonna = add([
+      sprite("nonna"),
+      pos(rand(0, width()), rand(0, height())),
+      area(),
+      "nonna"
+    ]);
+    player.onCollide("nonna", () => {
+      destroy(nonna);
+      play("nonna");
+      invincible = true;
+      wait(5, () => invincible = false);
+      score += 50;
+      scoreLabel.text = "Score: " + score;
+    });
+  }
+
+  loop(2, () => spawnItem("espresso", "espresso", 10));
+  loop(5, () => spawnItem("flag", "flag", 20));
+  loop(4, () => spawnEnemy());
+  loop(10, () => spawnNonna());
+});
+
+// Game Over scene
+scene("lose", () => {
+  add([
+    text("GAME OVER\nScore: " + score, { size: 24 }),
+    pos(center()),
+    origin("center")
+  ]);
+});
+
+// Level 2 - Vespa Dash
+scene("level2", () => {
+  const SPEED = 200;
+  let vespaScore = 0;
+
+  const salVespa = add([
+    rect(16, 16),
+    pos(80, height() / 2),
+    color(255, 255, 0),
+    area(),
+    "vespa"
+  ]);
+
+  onKeyDown("up", () => salVespa.move(0, -SPEED));
+  onKeyDown("down", () => salVespa.move(0, SPEED));
+
+  const vespaScoreLabel = add([
+    text("Score: 0", { size: 12 }),
+    pos(10, 10),
+    layer("ui")
+  ]);
+
+  function spawnObstacle() {
+    const obs = add([
+      rect(16, 16),
+      pos(width(), rand(0, height() - 16)),
+      color(255, 0, 0),
+      area(),
+      move(LEFT, SPEED),
+      offscreen({ destroy: true }),
+      "obstacle"
+    ]);
+    salVespa.onCollide("obstacle", () => go("lose"));
+  }
+
+  function spawnPickup() {
+    const pickup = add([
+      rect(12, 12),
+      pos(width(), rand(0, height() - 12)),
+      color(0, 255, 0),
+      area(),
+      move(LEFT, SPEED),
+      offscreen({ destroy: true }),
+      "pickup"
+    ]);
+    salVespa.onCollide("pickup", () => {
+      destroy(pickup);
+      vespaScore += 10;
+      vespaScoreLabel.text = "Score: " + vespaScore;
+    });
+  }
+
+  loop(1.5, () => spawnObstacle());
+  loop(2, () => spawnPickup());
+});
+
+// Start the menu
+go("menu");
+</script>
+</body>
+</html>
